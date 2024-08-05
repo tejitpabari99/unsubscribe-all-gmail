@@ -58,7 +58,7 @@ app.get('/auth/gmail', (req, res) => {
     try {
       const response = await gmail.users.messages.list({
         userId: 'me',
-        q: 'unsubscribe',
+        q: 'is:unread unsubscribe',
         maxResults: 50
       });
   
@@ -68,15 +68,8 @@ app.get('/auth/gmail', (req, res) => {
           id: message.id,
           format: 'full'
         });
-
-        // console.log("---------------------");
-        // console.log(email.data.payload);
-        // console.log(email.data.payload.headers);
-        // console.log(email.data.payload.parts);
-        // console.log(email.data.body);
   
         const url = email.config.url;
-        // const labels = email.data.labelIds;
         const headers = email.data.payload.headers;
         const subject = headers.find(header => header.name === 'Subject')?.value || 'No Subject';
         const from = headers.find(header => header.name === 'From')?.value || 'Unknown Sender';
@@ -86,7 +79,12 @@ app.get('/auth/gmail', (req, res) => {
   
         let unsubscribeLink = headers.find(header => header.name === 'List-Unsubscribe')?.value || null;
         if (unsubscribeLink) {
-          unsubscribeLink = unsubscribeLink.match(/<(.+)>/)[1];
+          if(unsubscribeLink.includes('mailto')) {
+            unsubscribeLink = null;
+          }
+          else{
+            unsubscribeLink = unsubscribeLink.match(/<(.+)>/)[1];
+          }
         }
         else {
             const parts = email.data.payload.parts || [email.data.payload];
@@ -106,15 +104,17 @@ app.get('/auth/gmail', (req, res) => {
             }
         }
   
-        return {
-          id: message.id,
-          url,
-          date,
-          subject,
-          senderName,
-          senderEmail,
-          unsubscribeLink
-        };
+        if (unsubscribeLink){
+          return {
+            id: message.id,
+            url,
+            date,
+            subject,
+            senderName,
+            senderEmail,
+            unsubscribeLink
+          };
+        }
       }));
   
       res.json(emails);
@@ -134,21 +134,21 @@ app.get('/auth/gmail', (req, res) => {
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: token });
   
-    const { email } = req.body;
-    const { id:emailId, unsubscribeLink } = email;
+    const { senderEmail, emailIds, unsubscribeLink } = req.body;
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
   
     try {
       if (unsubscribeLink) {
         await axios.get(unsubscribeLink);
-        await gmail.users.messages.modify({
-            'userId':'me',
-            'id':emailId,
-            'resource': {
-                'addLabelIds':[],
-                'removeLabelIds': ['UNREAD']
+        await Promise.all(emailIds.map(emailId => 
+          gmail.users.messages.modify({
+            userId: 'me',
+            id: emailId,
+            resource: {
+              removeLabelIds: ['UNREAD']
             }
-        });
+          })
+        ));
         res.json({ success: true });
       } else {
         res.status(404).json({ error: 'Unsubscribe link not found' });
@@ -158,6 +158,7 @@ app.get('/auth/gmail', (req, res) => {
       res.status(500).json({ error: 'Failed to unsubscribe' });
     }
   });
+  
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

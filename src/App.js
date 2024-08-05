@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
-import { FaSearch, FaSync, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { FaSearch, FaSync, FaSort, FaSortUp, FaSortDown, FaCheck, FaTimes  } from 'react-icons/fa';
 
 function App() {
   const [emails, setEmails] = useState([]);
@@ -59,14 +59,16 @@ function App() {
   const groupEmailsBySender = (emailList) => {
     const groupedEmails = {};
     emailList.forEach(email => {
-      if (!groupedEmails[email.senderEmail]) {
-        groupedEmails[email.senderEmail] = {
-          senderName: email.senderName,
-          senderEmail: email.senderEmail,
-          emails: []
-        };
+      if (email){
+        if (!groupedEmails[email.senderEmail]) {
+          groupedEmails[email.senderEmail] = {
+            senderName: email.senderName,
+            senderEmail: email.senderEmail,
+            emails: []
+          };
+        }
+        groupedEmails[email.senderEmail].emails.push(email);
       }
-      groupedEmails[email.senderEmail].emails.push(email);
     });
     return Object.values(groupedEmails);
   };
@@ -113,18 +115,22 @@ function App() {
   };
 
   const handleUnsubscribe = async () => {
-    const emailsToUnsubscribe = filteredEmails
-      .filter(group => selectedEmails[group.senderEmail])
-      .flatMap(group => group.emails);
+    const groupsToUnsubscribe = filteredEmails.filter(group => selectedEmails[group.senderEmail]);
 
-    for (const email of emailsToUnsubscribe) {
-      setUnsubscribeStatus(prev => ({ ...prev, [email.id]: 'loading' }));
+    for (const group of groupsToUnsubscribe) {
+      const { senderEmail, emails } = group;
+      const emailIds = emails.map(email => email.id);
+      const unsubscribeLink = emails[0].unsubscribeLink;
+
+      setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'loading' }));
       try {
-        await axios.post('/api/unsubscribe', { email });
-        setUnsubscribeStatus(prev => ({ ...prev, [email.id]: 'success' }));
+        await axios.post('/api/unsubscribe', { senderEmail, emailIds, unsubscribeLink }, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'success' }));
       } catch (error) {
         console.error('Error unsubscribing:', error);
-        setUnsubscribeStatus(prev => ({ ...prev, [email.id]: 'failure' }));
+        setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'failure' }));
       }
     }
   };
@@ -142,8 +148,11 @@ function App() {
     }
 
     const sortedEmails = [...filteredEmails].sort((a, b) => {
-      if (a[column] < b[column]) return sortDirection === 'asc' ? -1 : 1;
-      if (a[column] > b[column]) return sortDirection === 'asc' ? 1 : -1;
+      const valueA = a[column].toLowerCase();
+      const valueB = b[column].toLowerCase();
+
+      if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+      if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
 
@@ -198,6 +207,7 @@ function App() {
                   )}
                   {sortColumn !== 'senderEmail' && <FaSort />}
                 </th>
+                <th>Status</th>
                 <th></th>
               </tr>
             </thead>
@@ -215,6 +225,20 @@ function App() {
                     <td>{group.senderName}</td>
                     <td>{group.senderEmail}</td>
                     <td>
+                      {unsubscribeStatus[group.senderEmail] === 'loading' && <span className="loading-spinner-small"></span>}
+                      {unsubscribeStatus[group.senderEmail] === 'success' && <span className="success-icon icon-container"><FaCheck /></span>}
+                      {unsubscribeStatus[group.senderEmail] === 'failure' && 
+                        (
+                          <div className="icon-text-container">
+                            <span className="icon-container failure-icon"><FaTimes /></span>
+                            <a href={group.emails[0].unsubscribeLink} 
+                              className="unsubscribe-link">
+                              Unsubscribe
+                            </a>
+                          </div>
+                        )}
+                    </td>
+                    <td>
                       <button onClick={() => toggleRowExpansion(group.senderEmail)}>
                         {expandedRows[group.senderEmail] ? '▲' : '▼'}
                       </button>
@@ -226,24 +250,17 @@ function App() {
                         <ul>
                           {group.emails.map(email => (
                             <li key={email.id}>
-                              <a href={email.url} target="_blank" rel="noopener noreferrer">
-                                [{new Date(email.date).toLocaleString('en-US', {
+                              [{new Date(email.date).toLocaleString('en-US', {
                                   year: 'numeric',
                                   month: '2-digit',
                                   day: '2-digit',
                                   hour: '2-digit',
                                   minute: '2-digit',
                                   hour12: true
-                                })}] {email.subject}
+                                })}]{' '}
+                              <a href={email.url} target="_blank" rel="noopener noreferrer">
+                                {email.subject}
                               </a>
-                              {unsubscribeStatus[email.id] === 'loading' && <span className="loading-spinner-small"></span>}
-                              {unsubscribeStatus[email.id] === 'success' && <span className="success-icon">✓</span>}
-                              {unsubscribeStatus[email.id] === 'failure' && (
-                                <>
-                                  <span className="failure-icon">✗</span>
-                                  <a href={email.unsubscribeLink} target="_blank" rel="noopener noreferrer" className="unsubscribe-link">Unsubscribe</a>
-                                </>
-                              )}
                             </li>
                           ))}
                         </ul>

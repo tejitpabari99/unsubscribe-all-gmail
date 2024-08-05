@@ -151,17 +151,10 @@ li {
 
 .success-icon {
   color: green;
-  margin-left: 10px;
 }
 
 .failure-icon {
   color: red;
-  margin-left: 10px;
-}
-
-.unsubscribe-link {
-  color: red;
-  margin-left: 10px;
 }
 
 th {
@@ -170,4 +163,37 @@ th {
 
 th svg {
   margin-left: 5px;
+}
+
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; /* Adjust the size as needed */
+  height: 24px; /* Adjust the size as needed */
+  border-radius: 50%;
+  border: 2px solid; /* Adjust the border thickness and color */
+  font-size: 16px; /* Adjust the icon size as needed */
+}
+
+.icon-container svg {
+  color: inherit; /* Inherit the color from the border */
+}
+
+.icon-text-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  gap: 4px; /* Space between icon and text */
+}
+
+.unsubscribe-link {
+  font-size: 14px; /* Adjust the font size as needed */
+  color: red; /* Adjust the text color as needed */
+  text-decoration: none; /* Remove underline from the link */
+  cursor: pointer; /* Show a pointer cursor on hover */
+}
+
+.unsubscribe-link:hover {
+  text-decoration: underline; /* Optional: underline on hover */
 }
