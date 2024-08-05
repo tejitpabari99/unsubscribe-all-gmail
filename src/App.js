@@ -162,122 +162,133 @@ function App() {
   const isAnyEmailSelected = Object.values(selectedEmails).some(Boolean);
 
   return (
-    <div className="App">
-      <h1>Gmail Unsubscribe App</h1>
-      {isAuthenticated && (
-        <button className="logout-button" onClick={handleLogout}>Logout</button>
-      )}
-      {isLoading ? (
-        <div className="loading-spinner"></div>
-      ) : !isAuthenticated ? (
-        <button onClick={handleAuth}>Connect to Gmail</button>
-      ) : (
-        <div>
-          <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="Search emails..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button onClick={() => {}}><FaSearch /></button>
-            <button onClick={() => fetchEmails(authToken)}><FaSync /></button>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={filteredEmails.length > 0 && filteredEmails.every(group => selectedEmails[group.senderEmail])}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th onClick={() => handleSort('senderName')}>
-                  Sender Name
-                  {sortColumn === 'senderName' && (
-                    sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />
-                  )}
-                  {sortColumn !== 'senderName' && <FaSort />}
-                </th>
-                <th onClick={() => handleSort('senderEmail')}>
-                  Sender Email
-                  {sortColumn === 'senderEmail' && (
-                    sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />
-                  )}
-                  {sortColumn !== 'senderEmail' && <FaSort />}
-                </th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEmails.map((group) => (
-                <React.Fragment key={group.senderEmail}>
-                  <tr>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedEmails[group.senderEmail] || false}
-                        onChange={() => handleCheckboxChange(group.senderEmail)}
-                      />
-                    </td>
-                    <td>{group.senderName}</td>
-                    <td>{group.senderEmail}</td>
-                    <td>
-                      {unsubscribeStatus[group.senderEmail] === 'loading' && <span className="loading-spinner-small"></span>}
-                      {unsubscribeStatus[group.senderEmail] === 'success' && <span className="success-icon icon-container"><FaCheck /></span>}
-                      {unsubscribeStatus[group.senderEmail] === 'failure' && 
-                        (
-                          <div className="icon-text-container">
-                            <span className="icon-container failure-icon"><FaTimes /></span>
-                            <a href={group.emails[0].unsubscribeLink} 
-                              className="unsubscribe-link">
-                              Unsubscribe
-                            </a>
-                          </div>
-                        )}
-                    </td>
-                    <td>
-                      <button onClick={() => toggleRowExpansion(group.senderEmail)}>
-                        {expandedRows[group.senderEmail] ? '▲' : '▼'}
-                      </button>
-                    </td>
-                  </tr>
-                  {expandedRows[group.senderEmail] && (
+    <div>
+      <div className="App">
+        <h1>Gmail Unsubscribe App</h1>
+        {isAuthenticated && (
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
+        )}
+        {isLoading ? (
+          <div className="loading-spinner"></div>
+        ) : !isAuthenticated ? (
+          <button onClick={handleAuth}>Connect to Gmail</button>
+        ) : (
+          <div>
+            <div className="search-bar">
+              <input 
+                type="text" 
+                placeholder="Search emails..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button onClick={() => {}}><FaSearch /></button>
+              <button onClick={() => fetchEmails(authToken)}><FaSync /></button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={filteredEmails.length > 0 && filteredEmails.every(group => selectedEmails[group.senderEmail])}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th onClick={() => handleSort('senderName')}>
+                    Sender Name
+                    {sortColumn === 'senderName' && (
+                      sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />
+                    )}
+                    {sortColumn !== 'senderName' && <FaSort />}
+                  </th>
+                  <th onClick={() => handleSort('senderEmail')}>
+                    Sender Email
+                    {sortColumn === 'senderEmail' && (
+                      sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />
+                    )}
+                    {sortColumn !== 'senderEmail' && <FaSort />}
+                  </th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredEmails.map((group) => (
+                  <React.Fragment key={group.senderEmail}>
                     <tr>
-                      <td colSpan="4">
-                        <ul>
-                          {group.emails.map(email => (
-                            <li key={email.id}>
-                              [{new Date(email.date).toLocaleString('en-US', {
-                                  year: 'numeric',
-                                  month: '2-digit',
-                                  day: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}]{' '}
-                              <a href={email.url} target="_blank" rel="noopener noreferrer">
-                                {email.subject}
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedEmails[group.senderEmail] || false}
+                          onChange={() => handleCheckboxChange(group.senderEmail)}
+                        />
+                      </td>
+                      <td>{group.senderName}</td>
+                      <td>{group.senderEmail}</td>
+                      <td>
+                        {unsubscribeStatus[group.senderEmail] === 'loading' && <span className="loading-spinner-small"></span>}
+                        {unsubscribeStatus[group.senderEmail] === 'success' && <span className="success-icon icon-container"><FaCheck /></span>}
+                        {unsubscribeStatus[group.senderEmail] === 'failure' && 
+                          (
+                            <div className="icon-text-container">
+                              <span className="icon-container failure-icon"><FaTimes /></span>
+                              <a href={group.emails[0].unsubscribeLink} 
+                                className="unsubscribe-link">
+                                Unsubscribe
                               </a>
-                            </li>
-                          ))}
-                        </ul>
+                            </div>
+                          )}
+                      </td>
+                      <td>
+                        <button onClick={() => toggleRowExpansion(group.senderEmail)}>
+                          {expandedRows[group.senderEmail] ? '▲' : '▼'}
+                        </button>
                       </td>
                     </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-          <div className="action-buttons">
-            <button onClick={handleUnsubscribe} disabled={!isAnyEmailSelected}>
-              Unsubscribe
-            </button>
+                    {expandedRows[group.senderEmail] && (
+                      <tr>
+                        <td colSpan="4">
+                          <ul>
+                            {group.emails.map(email => (
+                              <li key={email.id}>
+                                [{new Date(email.date).toLocaleString('en-US', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  })}]{' '}
+                                <a href={email.url} target="_blank" rel="noopener noreferrer">
+                                  {email.subject}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+            <div className="action-buttons">
+              <button onClick={handleUnsubscribe} disabled={!isAnyEmailSelected}>
+                Unsubscribe
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+      <footer className="footer">
+          <p>&copy; 2024 Tejit</p>
+          <p>
+            <a href="https://www.flaticon.com/free-icons/unsubscribe" 
+                title="unsubscribe icons">
+                  Unsubscribe icons created by Freepik - Flaticon
+            </a>
+          </p>
+        </footer>
     </div>
   );
 }

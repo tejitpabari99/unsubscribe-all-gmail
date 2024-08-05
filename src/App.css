@@ -197,3 +197,15 @@ th svg {
 .unsubscribe-link:hover {
   text-decoration: underline; /* Optional: underline on hover */
 }
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  color: black;
+  .a {
+    color: black;
+  }
+}
