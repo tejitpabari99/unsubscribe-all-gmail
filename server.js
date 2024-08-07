@@ -23,6 +23,10 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is running' });
+});
+
 app.get('/auth/gmail', (req, res) => {
     const url = oauth2Client.generateAuthUrl({
       access_type: 'offline',
