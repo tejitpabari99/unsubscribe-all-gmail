@@ -15,7 +15,7 @@ function App() {
   const [authToken, setAuthToken] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const [unsubscribeStatus, setUnsubscribeStatus] = useState({});
-  const SERVER_URL = "https://unsubscribe-all-gmail-16421015f897.herokuapp.com";
+  // const SERVER_URL = "https://unsubscribe-all-gmail-16421015f897.herokuapp.com";
 
   const handleAuth = async () => {
     try {
