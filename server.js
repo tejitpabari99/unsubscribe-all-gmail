@@ -3,10 +3,16 @@ const { google } = require('googleapis');
 const dotenv = require('dotenv');
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
+const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: process.env.APP_URL,
+  credentials: true
+}));
+
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
@@ -79,12 +85,12 @@ app.get('/auth/gmail', (req, res) => {
   
         let unsubscribeLink = headers.find(header => header.name === 'List-Unsubscribe')?.value || null;
         if (unsubscribeLink) {
-          if(unsubscribeLink.includes('mailto')) {
-            unsubscribeLink = null;
-          }
-          else{
+          // if(unsubscribeLink.includes('mailto')) {
+          //   unsubscribeLink = null;
+          // }
+          // else{
             unsubscribeLink = unsubscribeLink.match(/<(.+)>/)[1];
-          }
+          // }
         }
         else {
             const parts = email.data.payload.parts || [email.data.payload];

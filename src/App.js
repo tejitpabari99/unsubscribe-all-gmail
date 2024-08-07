@@ -15,13 +15,15 @@ function App() {
   const [authToken, setAuthToken] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const [unsubscribeStatus, setUnsubscribeStatus] = useState({});
+  const SERVER_URL = "https://unsubscribe-all-gmail-16421015f897.herokuapp.com";
 
   const handleAuth = async () => {
     try {
-      const response = await axios.get('/auth/gmail');
+      const response = await axios.get(SERVER_URL + '/auth/gmail');
       const authWindow = window.open(response.data.url, '_blank', 'width=500,height=600');
       
       const handleMessage = async (event) => {
+        if (event.origin !== SERVER_URL) return;
         if (event.data.token) {
           window.removeEventListener('message', handleMessage);
           authWindow.close();
@@ -41,7 +43,7 @@ function App() {
     setUnsubscribeStatus({});
     setSelectedEmails({});
     try {
-      const response = await axios.get('/api/unsubscribe-emails', {
+      const response = await axios.get(SERVER_URL + '/api/unsubscribe-emails', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const groupedEmails = groupEmailsBySender(response.data);
@@ -103,13 +105,15 @@ function App() {
   };
 
   const handleSelectAll = () => {
-    if (Object.values(selectedEmails).every(Boolean)) {
+    if (Object.keys(selectedEmails).length > 0) {
       setSelectedEmails({});
     } else {
       const newSelectedEmails = {};
+      console.log(filteredEmails);
       filteredEmails.forEach(group => {
         newSelectedEmails[group.senderEmail] = true;
       });
+      console.log(filteredEmails);
       setSelectedEmails(newSelectedEmails);
     }
   };
@@ -124,7 +128,7 @@ function App() {
 
       setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'loading' }));
       try {
-        await axios.post('/api/unsubscribe', { senderEmail, emailIds, unsubscribeLink }, {
+        await axios.post(SERVER_URL + '/api/unsubscribe', { senderEmail, emailIds, unsubscribeLink }, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'success' }));
