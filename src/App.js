@@ -19,11 +19,11 @@ function App() {
 
   const handleAuth = async () => {
     try {
-      const response = await axios.get(SERVER_URL + '/auth/gmail');
+      const response = await axios.get('/auth/gmail');
       const authWindow = window.open(response.data.url, '_blank', 'width=500,height=600');
       
       const handleMessage = async (event) => {
-        if (event.origin !== SERVER_URL) return;
+        // if (event.origin !== SERVER_URL) return;
         if (event.data.token) {
           window.removeEventListener('message', handleMessage);
           authWindow.close();
@@ -43,7 +43,7 @@ function App() {
     setUnsubscribeStatus({});
     setSelectedEmails({});
     try {
-      const response = await axios.get(SERVER_URL + '/api/unsubscribe-emails', {
+      const response = await axios.get('/api/unsubscribe-emails', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const groupedEmails = groupEmailsBySender(response.data);
@@ -128,7 +128,7 @@ function App() {
 
       setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'loading' }));
       try {
-        await axios.post(SERVER_URL + '/api/unsubscribe', { senderEmail, emailIds, unsubscribeLink }, {
+        await axios.post('/api/unsubscribe', { senderEmail, emailIds, unsubscribeLink }, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         setUnsubscribeStatus(prev => ({ ...prev, [senderEmail]: 'success' }));
