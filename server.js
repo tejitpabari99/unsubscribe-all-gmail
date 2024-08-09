@@ -85,12 +85,13 @@ app.get('/auth/gmail', (req, res) => {
   
         let unsubscribeLink = headers.find(header => header.name === 'List-Unsubscribe')?.value || null;
         if (unsubscribeLink) {
-          // if(unsubscribeLink.includes('mailto')) {
-          //   unsubscribeLink = null;
-          // }
-          // else{
-            unsubscribeLink = unsubscribeLink.match(/<(.+)>/)[1];
-          // }
+          let _match = unsubscribeLink.match(/<(.+)>/);
+          if (_match && _match[1]) {
+              unsubscribeLink = _match[1];
+          }
+          else {
+              unsubscribeLink = null;
+          }
         }
         else {
             const parts = email.data.payload.parts || [email.data.payload];
