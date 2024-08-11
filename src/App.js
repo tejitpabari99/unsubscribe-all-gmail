@@ -25,7 +25,6 @@ function App() {
       const authWindow = window.open(response.data.url, '_blank', 'width=500,height=600');
       
       const handleMessage = async (event) => {
-        console.log(event);
         if (event.origin !== SERVER_URL) return;
         if (event.data.token) {
           window.removeEventListener('message', handleMessage);
