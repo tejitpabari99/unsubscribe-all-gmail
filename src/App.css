@@ -208,3 +208,14 @@ th svg {
     color: black;
   }
 }
+
+.privacy-policy {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+.privacy-policy h1, .privacy-policy h2 {
+  margin-top: 20px;
+}
