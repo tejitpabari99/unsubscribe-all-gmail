@@ -12,14 +12,13 @@ function PrivacyPolicy() {
       <h2>2. Information We Collect</h2>
       <p>When you use our app, we collect the following information:</p>
       <ul>
-        <li>Your Gmail account information, accessed through Google's OAuth 2.0 protocol</li>
         <li>Email metadata (sender name, sender email, subject line, date, and unsubscribe link) from your unread emails containing "unsubscribe" in the content</li>
         <li>Usage data such as your interactions with our app</li>
       </ul>
-      <p>We do not store any of your emails or email content on our servers.</p>
+      <p>We do not store any of your emails or email content on our servers. We also don't store any of your password or Google Auth. Every time you want to access emails.</p>
 
       <h2>3. How We Use Your Information</h2>
-      <p>We use your information to:</p>
+      <p>We use your information to allow you to unsubscribe to emails. We do not store any of your emails, information or authentication information.</p>
       <ul>
         <li>Provide and maintain our service</li>
         <li>Allow you to view and manage your subscription emails</li>
